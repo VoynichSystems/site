@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voynich Systems</title>
+<meta name="description" content="Voynich Systems — independent software studio in Sheffield, UK. Makers of Nowt, encrypted notes & tasks for Android.">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --ink: #e6e6e6;
+    --dim: #6f6f6f;
+    --line: #1f1f1f;
+    --red: #d0342c;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  a:hover { color: #fff; }
+  a:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+
+  header, footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 24px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  #mark { display: block; width: min(520px, 86vw); height: auto; }
+
+  .sub {
+    margin-top: 14px;
+    font-size: 13px;
+    letter-spacing: .58em;
+    text-indent: .58em; /* balances the tracking so it centres true */
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .about {
+    margin-top: 56px;
+    max-width: 34em;
+    color: var(--ink);
+  }
+
+  .project {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    max-width: 34em;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    margin-right: 9px;
+    vertical-align: 1px;
+  }
+  .project h2 { font-size: 15px; font-weight: 600; margin-top: 14px; }
+  .project p { margin-top: 8px; color: var(--dim); }
+
+  .contact { margin-top: 56px; }
+
+  footer { border-top: 1px solid var(--line); }
+
+  @media (max-width: 480px) {
+    .sub { letter-spacing: .42em; text-indent: .42em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span>Voynich Systems</span>
+  <span>Sheffield, UK</span>
+</header>
+
+<main>
+  <h1 style="position:absolute;left:-9999px">Voynich Systems</h1>
+  <canvas id="mark" aria-hidden="true"></canvas>
+  <div class="sub">Systems</div>
+
+  <p class="about">
+    Independent software studio. We build small, private,
+    offline-first apps — and keep them that way.
+  </p>
+
+  <section class="project">
+    <div class="eyebrow">Now building</div>
+    <h2>Nowt — Encrypted Notes &amp; Tasks</h2>
+    <p>End-to-end encrypted notes and tasks for Android.
+    Your words stay yours: there's nowt to see.
+    Coming soon to Google Play.</p>
+  </section>
+
+  <p class="contact"><a href="mailto:hello@voynich.systems">hello@voynich.systems</a></p>
+</main>
+
+<footer>
+  <span>&copy; 2026 Voynich Systems</span>
+  <span>voynich.systems</span>
+</footer>
+
+<script>
+// 5x7 caps, hand-packed. 1 = dot on.
+var FONT = {
+  V: ["10001","10001","10001","10001","10001","01010","00100"],
+  O: ["01110","10001","10001","10001","10001","10001","01110"],
+  Y: ["10001","10001","01010","00100","00100","00100","00100"],
+  N: ["10001","11001","10101","10011","10001","10001","10001"],
+  I: ["01110","00100","00100","00100","00100","00100","01110"],
+  C: ["01110","10001","10000","10000","10000","10001","01110"],
+  H: ["10001","10001","10001","11111","10001","10001","10001"]
+};
+
+var WORD = "VOYNICH";
+var canvas = document.getElementById("mark");
+var ctx = canvas.getContext("2d");
+
+// grid: 5 cols per letter + 1 gap, plus a full-stop dot on the end
+var cols = WORD.length * 6 + 1;
+var rows = 7;
+
+var dots = [];
+for (var i = 0; i < WORD.length; i++) {
+  var g = FONT[WORD[i]];
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < 5; c++) {
+      if (g[r][c] === "1") dots.push({ x: i * 6 + c, y: r, red: false });
+    }
+  }
+}
+dots.push({ x: cols - 1, y: rows - 1, red: true }); // the full stop
+
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var t0 = null;
+var SETTLE = 1100; // ms until every dot has locked in
+
+dots.forEach(function (d) {
+  d.at = reduce ? 0 : 120 + Math.random() * (SETTLE - 120);
+});
+
+function size() {
+  var w = canvas.clientWidth || 520;
+  var cell = w / cols;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(cell * rows * dpr);
+  canvas.style.height = (cell * rows) + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return cell;
+}
+
+function draw(now) {
+  if (t0 === null) t0 = now;
+  var t = now - t0;
+  var cell = size();
+  var rad = cell * 0.34;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  var pending = false;
+  for (var i = 0; i < dots.length; i++) {
+    var d = dots[i];
+    var on;
+    if (t >= d.at) {
+      on = true;
+    } else {
+      pending = true;
+      on = Math.random() < 0.4; // still scrambled
+    }
+    if (!on) continue;
+    ctx.beginPath();
+    ctx.arc((d.x + 0.5) * cell, (d.y + 0.5) * cell, rad, 0, Math.PI * 2);
+    ctx.fillStyle = (t >= d.at && d.red) ? "#d0342c" : "#e6e6e6";
+    ctx.fill();
+  }
+
+  if (pending) requestAnimationFrame(draw);
+}
+
+if (reduce) {
+  draw(performance.now());
+} else {
+  requestAnimationFrame(draw);
+}
+window.addEventListener("resize", function () { draw(performance.now() + SETTLE); });
+</script>
+
+</body>
+</html>
