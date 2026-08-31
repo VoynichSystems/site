@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nowt | Encrypted Notes &amp; Tasks | Voynich Systems</title>
+<meta name="description" content="Nowt is a block-based notes and tasks app for Android and the web, with optional end-to-end encryption and sync across your devices.">
+<link rel="canonical" href="https://voynich.systems/nowt/">
+
+<!-- Open Graph. Assistants and chat apps read these when someone shares the
+     link, and they are the cheapest way to control how the page is summarised. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Voynich Systems">
+<meta property="og:title" content="Nowt | Encrypted Notes &amp; Tasks">
+<meta property="og:description" content="Block-based notes and tasks for Android and the web, with optional end-to-end encryption and sync across your devices.">
+<meta property="og:url" content="https://voynich.systems/nowt/">
+
+<!-- This page is the Application home page registered on the Google OAuth
+     consent screen. Google's branding verification rejected the previous one
+     for being behind a login wall and for not explaining the app's purpose,
+     so two things are load-bearing here and must not be removed: the page
+     stays reachable without signing in, and the opening copy says plainly
+     what Nowt is, in text rather than in a canvas or an image. -->
+
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --ink: #e6e6e6;
+    --dim: #6f6f6f;
+    --line: #1f1f1f;
+    --red: #d0342c;
+    /* The Nowt mark's own red, from NowtLogo.brandRed in the app
+       (lib/widgets/nowt_logo.dart). Deliberately not --red: the product mark
+       keeps its exact brand value, the site chrome keeps the studio's. */
+    --nowt-red: #d71921;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  a:hover { color: #fff; }
+  a:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+
+  header, footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  header a, footer a { color: var(--dim); }
+  header a:hover, footer a:hover { color: var(--ink); }
+  footer { border-top: 1px solid var(--line); }
+
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 40em;
+    margin: 0 auto;
+    padding: 56px 24px 72px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    margin-right: 9px;
+    vertical-align: 1px;
+  }
+
+  /* Hero: the Nowt mark sits beside the wordmark, same as the app's drawer. */
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 18px;
+  }
+  #nowt-mark {
+    display: block;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 auto;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .sub {
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .lede {
+    margin-top: 30px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  h2 {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  h2 + p, h2 + ul, h2 + .rows, h2 + .studio { margin-top: 14px; }
+  p { margin-top: 14px; }
+  p.dim { color: var(--dim); }
+
+  ul { margin-top: 14px; padding-left: 18px; }
+  li { margin-top: 6px; }
+  li::marker { color: var(--nowt-red); }
+
+  /* The web app is only reachable if a user knows the address, and pairing a
+     browser can only be started from the browser side, because the phone is
+     the thing with the camera. This button is the entry point for every
+     customer who wants Nowt on a desktop, so it stays visually loud. */
+  .cta { margin-top: 34px; }
+  a.btn {
+    display: inline-block;
+    padding: 14px 22px;
+    border: 1px solid var(--nowt-red);
+    color: var(--ink);
+    background: transparent;
+    font-size: 13px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  a.btn:hover { background: var(--nowt-red); color: #fff; }
+  .cta .note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  .rows { border-top: 1px solid var(--line); }
+  .row {
+    display: flex;
+    gap: 18px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .row .k {
+    flex: 0 0 8.5em;
+    color: var(--dim);
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding-top: 1px;
+  }
+  .row .v { flex: 1; }
+
+  /* Studio mark, bottom of the page. Nowt is the subject here, so the
+     VOYNICH wordmark is a signature rather than a hero. */
+  .studio {
+    display: block;
+    margin-top: 22px;
+    text-decoration: none;
+  }
+  #voynich-mark {
+    display: block;
+    width: min(340px, 78%);
+    height: auto;
+    opacity: .82;
+    transition: opacity .2s;
+  }
+  .studio:hover #voynich-mark { opacity: 1; }
+
+  @media (max-width: 520px) {
+    .row { flex-direction: column; gap: 4px; }
+    .row .k { flex: none; }
+    #nowt-mark { width: 52px; height: 52px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span><a href="/">Voynich Systems</a></span>
+  <span>Sheffield, UK</span>
+</header>
+
+<main>
+
+  <div class="eyebrow">Product</div>
+
+  <div class="hero">
+    <canvas id="nowt-mark" aria-hidden="true"></canvas>
+    <div>
+      <h1>Nowt</h1>
+      <div class="sub">Encrypted Notes &amp; Tasks</div>
+    </div>
+  </div>
+
+  <p class="lede">
+    Nowt is a notes and tasks app for Android and the web. You write in blocks
+    rather than one long box of text, keep your tasks and reminders next to the
+    notes they belong to, and sync everything between your phone and your
+    browser. Encryption is optional, and when you switch it on your content is
+    encrypted on your own device before it leaves it.
+  </p>
+
+  <div class="cta">
+    <a class="btn" href="https://app.voynich.systems">Open the web app</a>
+    <div class="note">
+      app.voynich.systems. Runs in any modern browser, nothing to install.
+    </div>
+  </div>
+
+  <h2>Writing in blocks</h2>
+
+  <p>
+    A note is a stack of blocks you add, reorder and mix as you go, so one note
+    can hold a heading, a checklist, a photo and a map pin without fighting the
+    editor.
+  </p>
+
+  <ul>
+    <li>Paragraphs with bold, italic and highlight, plus headings, quotes, callouts, dividers, code and tables.</li>
+    <li>Checklists, bulleted lists and numbered lists, tickable and reorderable in place.</li>
+    <li>Images, audio recordings, documents, moodboards and link previews.</li>
+    <li>Map locations, books, films and TV, countdowns and timestamps, each as its own block.</li>
+  </ul>
+
+  <h2>Keeping it in order</h2>
+
+  <div class="rows">
+    <div class="row">
+      <div class="k">Notebooks</div>
+      <div class="v">Group related notes, each with its own icon and colour.</div>
+    </div>
+    <div class="row">
+      <div class="k">Tags</div>
+      <div class="v">Cut across notebooks when one label is not enough.</div>
+    </div>
+    <div class="row">
+      <div class="k">Tasks</div>
+      <div class="v">Live beside your notes, with due dates, reminders and repeats.</div>
+    </div>
+    <div class="row">
+      <div class="k">Templates</div>
+      <div class="v">Turn a note you keep rewriting into a starting point.</div>
+    </div>
+    <div class="row">
+      <div class="k">History</div>
+      <div class="v">Search older work, archive what is done, or roll a note back to how it read before.</div>
+    </div>
+  </div>
+
+  <h2>Sync and encryption</h2>
+
+  <p>
+    Nowt works offline on your device. Sign in and your notes sync across the
+    devices you have linked, so something written on your phone is waiting in
+    the browser.
+  </p>
+
+  <p>
+    End-to-end encryption is optional and the choice is yours. With it switched
+    on, your notes, attachments and tasks are encrypted on your device before
+    they are uploaded, and the keys stay on your devices. We cannot decrypt
+    your content with the keys we hold.
+  </p>
+
+  <p class="dim">
+    That cuts both ways, and we would rather say so here than in the small
+    print: recovery is on you. If you lose your password and your recovery key,
+    the content cannot be restored by anyone, us included. With encryption
+    switched off, your content is still encrypted at rest on our servers, but
+    it is decryptable by the service. Either way we hold your account email,
+    device information and subscription status, which is set out in full in the
+    <a href="https://nowt.voynich.systems/">privacy policy</a>.
+  </p>
+
+  <h2>Free and Pro</h2>
+
+  <p>
+    Nowt is free to use. A paid <strong>Pro</strong> subscription adds full
+    access to the web app, along with reminders and repeating tasks. Prices are
+    shown in the app before you buy, and subscriptions are billed through
+    Google Play.
+  </p>
+
+  <h2>Where to get it</h2>
+
+  <div class="rows">
+    <div class="row">
+      <div class="k">Web</div>
+      <div class="v"><a href="https://app.voynich.systems">app.voynich.systems</a>, available now.</div>
+    </div>
+    <div class="row">
+      <div class="k">Android</div>
+      <div class="v">Coming soon to Google Play.</div>
+    </div>
+  </div>
+
+  <h2>Policies and support</h2>
+
+  <div class="rows">
+    <div class="row">
+      <div class="k">Privacy</div>
+      <div class="v"><a href="https://nowt.voynich.systems/">Privacy policy</a></div>
+    </div>
+    <div class="row">
+      <div class="k">Deletion</div>
+      <div class="v"><a href="https://nowt.voynich.systems/delete-account">Delete your account</a></div>
+    </div>
+    <div class="row">
+      <div class="k">Support</div>
+      <div class="v"><a href="mailto:nowt@voynich.systems">nowt@voynich.systems</a></div>
+    </div>
+  </div>
+
+  <h2>Who makes it</h2>
+
+  <p>
+    Nowt is built by Voynich Systems, an independent software studio in
+    Sheffield, UK.
+  </p>
+
+  <a class="studio" href="/" aria-label="Voynich Systems">
+    <canvas id="voynich-mark" aria-hidden="true"></canvas>
+  </a>
+
+</main>
+
+<footer>
+  <span>&copy; 2026 Voynich Systems Ltd</span>
+  <span>Company 17402197, England &amp; Wales</span>
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ------------------------------------------------------------------ *
+   * Nowt mark: a direct port of AnimatedNowtLogo from the app
+   * (lib/widgets/nowt_logo.dart). Every constant below is lifted from
+   * _AnimatedNowtLogoPainter so the web mark and the in-app mark move
+   * identically. If the app's animation is retuned, retune this too.
+   * ------------------------------------------------------------------ */
+  var NOWT = {
+    canvas: document.getElementById("nowt-mark"),
+    // Geometry, normalised from branding/logo.svg.
+    sq: 0.2665, gap: 0.07125, m: 0.029,
+    // AnimationController duration and startDelay.
+    duration: 1220, delay: 120,
+    // Fraction of the timeline spent on the scale wave; colour runs after.
+    waveEnd: 0.35,
+    // Each cube's individual scale bump length, in global timeline units.
+    bump: 0.25,
+    // Peak extra scale at the crest of a cube's bump.
+    amp: 0.05,
+    // Peak outward spread as a fraction of a cube's distance from the grid
+    // centre. Cubes drift apart as the wave hits, then settle back.
+    spread: 0.08,
+    from: [0xd7, 0x19, 0x21],   // NowtLogo.brandRed
+    to:   [0xe6, 0xe6, 0xe6]    // --ink, the app's onSurface equivalent here
+  };
+
+  function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  function drawNowt(t) {
+    var c = NOWT.canvas;
+    if (!c) return;
+    var ctx = c.getContext("2d");
+    var cssSize = c.clientWidth || 64;
+    var dpr = window.devicePixelRatio || 1;
+    c.width = Math.round(cssSize * dpr);
+    c.height = Math.round(cssSize * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssSize, cssSize);
+
+    var s = cssSize;
+    var sq = NOWT.sq, gap = NOWT.gap, m = NOWT.m;
+
+    // Colour begins only once the wave has fully swept through.
+    var colourT = easeInOut(
+      Math.min(1, Math.max(0, (t - NOWT.waveEnd) / (1 - NOWT.waveEnd)))
+    );
+    var col = [0, 1, 2].map(function (i) {
+      return Math.round(NOWT.from[i] + (NOWT.to[i] - NOWT.from[i]) * colourT);
+    });
+    ctx.fillStyle = "rgb(" + col[0] + "," + col[1] + "," + col[2] + ")";
+
+    var starts = [m, m + sq + gap, m + 2 * (sq + gap)];
+    var maxDiag = 4;
+    // Latest a cube may start so its bump still finishes inside the wave phase.
+    var lastStart = NOWT.waveEnd - NOWT.bump;
+    var centre = 0.5 * s;
+
+    for (var r = 0; r < 3; r++) {
+      for (var col2 = 0; col2 < 3; col2++) {
+        // Diagonal index drives the top-left to bottom-right sweep.
+        var cubeStart = ((r + col2) / maxDiag) * lastStart;
+        var local = Math.min(1, Math.max(0, (t - cubeStart) / NOWT.bump));
+        // sin(pi*x): 0 -> 1 -> 0, a smooth symmetric crest.
+        var bump = Math.sin(local * Math.PI);
+        var scale = 1 + NOWT.amp * bump;
+
+        var cx = (starts[col2] + sq / 2) * s;
+        var cy = (starts[r] + sq / 2) * s;
+        var drift = NOWT.spread * bump;
+        cx += (cx - centre) * drift;
+        cy += (cy - centre) * drift;
+        var half = (sq * s * scale) / 2;
+        ctx.fillRect(cx - half, cy - half, half * 2, half * 2);
+      }
+    }
+  }
+
+  var nowtT0 = null;
+  function nowtFrame(now) {
+    if (nowtT0 === null) nowtT0 = now;
+    var elapsed = now - nowtT0 - NOWT.delay;
+    var t = Math.min(1, Math.max(0, elapsed / NOWT.duration));
+    drawNowt(t);
+    if (t < 1) requestAnimationFrame(nowtFrame);
+  }
+
+  if (NOWT.canvas) {
+    if (reduce) {
+      drawNowt(1);
+    } else {
+      requestAnimationFrame(nowtFrame);
+    }
+    // Redraw settled on resize so a rotation or a devicePixelRatio change
+    // does not leave a stale bitmap.
+    window.addEventListener("resize", function () { drawNowt(1); });
+  }
+
+  /* ------------------------------------------------------------------ *
+   * VOYNICH wordmark: the same dot-matrix scramble and settle used on the
+   * site home page, kept byte-for-byte in behaviour so the two marks read
+   * as one system. 5x7 caps, hand-packed. 1 = dot on.
+   * ------------------------------------------------------------------ */
+  var FONT = {
+    V: ["10001","10001","10001","10001","10001","01010","00100"],
+    O: ["01110","10001","10001","10001","10001","10001","01110"],
+    Y: ["10001","10001","01010","00100","00100","00100","00100"],
+    N: ["10001","11001","10101","10011","10001","10001","10001"],
+    I: ["01110","00100","00100","00100","00100","00100","01110"],
+    C: ["01110","10001","10000","10000","10000","10001","01110"],
+    H: ["10001","10001","10001","11111","10001","10001","10001"]
+  };
+
+  var WORD = "VOYNICH";
+  var vCanvas = document.getElementById("voynich-mark");
+
+  if (vCanvas) {
+    var vCtx = vCanvas.getContext("2d");
+    // grid: 5 cols per letter + 1 gap, plus a full-stop dot on the end
+    var cols = WORD.length * 6 + 1;
+    var rows = 7;
+
+    var dots = [];
+    for (var i = 0; i < WORD.length; i++) {
+      var g = FONT[WORD[i]];
+      for (var r2 = 0; r2 < rows; r2++) {
+        for (var c2 = 0; c2 < 5; c2++) {
+          if (g[r2][c2] === "1") dots.push({ x: i * 6 + c2, y: r2, red: false });
+        }
+      }
+    }
+    dots.push({ x: cols - 1, y: rows - 1, red: true }); // the full stop
+
+    var vT0 = null;
+    var SETTLE = 1100; // ms until every dot has locked in
+
+    dots.forEach(function (d) {
+      d.at = reduce ? 0 : 120 + Math.random() * (SETTLE - 120);
+    });
+
+    var vSize = function () {
+      var w = vCanvas.clientWidth || 340;
+      var cell = w / cols;
+      var dpr = window.devicePixelRatio || 1;
+      vCanvas.width = Math.round(w * dpr);
+      vCanvas.height = Math.round(cell * rows * dpr);
+      vCanvas.style.height = (cell * rows) + "px";
+      vCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return cell;
+    };
+
+    var vDraw = function (now) {
+      if (vT0 === null) vT0 = now;
+      var t = now - vT0;
+      var cell = vSize();
+      var rad = cell * 0.34;
+
+      vCtx.clearRect(0, 0, vCanvas.width, vCanvas.height);
+
+      var pending = false;
+      for (var i2 = 0; i2 < dots.length; i2++) {
+        var d = dots[i2];
+        var on;
+        if (t >= d.at) {
+          on = true;
+        } else {
+          pending = true;
+          on = Math.random() < 0.4; // still scrambled
+        }
+        if (!on) continue;
+        vCtx.beginPath();
+        vCtx.arc((d.x + 0.5) * cell, (d.y + 0.5) * cell, rad, 0, Math.PI * 2);
+        vCtx.fillStyle = (t >= d.at && d.red) ? "#d0342c" : "#e6e6e6";
+        vCtx.fill();
+      }
+
+      if (pending) requestAnimationFrame(vDraw);
+    };
+
+    // Hold the scramble until the mark is actually on screen. It sits below
+    // the fold here, unlike on the home page, and an animation that has
+    // already finished by the time you scroll to it is a wasted one.
+    var startVoynich = function () {
+      if (reduce) { vDraw(performance.now()); return; }
+      requestAnimationFrame(vDraw);
+    };
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { io.disconnect(); startVoynich(); }
+        });
+      }, { threshold: 0.35 });
+      io.observe(vCanvas);
+    } else {
+      startVoynich();
+    }
+
+    window.addEventListener("resize", function () {
+      vDraw(performance.now() + SETTLE);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
