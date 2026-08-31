@@ -72,7 +72,10 @@
   main {
     flex: 1;
     width: 100%;
-    max-width: 40em;
+    /* Monospace runs narrow per em, so 40em measured barely 48 characters and
+       read as a cramped column. 56em is roughly 90 characters at 14px, which
+       is the top of a comfortable measure without becoming a wall. */
+    max-width: 56em;
     margin: 0 auto;
     padding: 56px 24px 72px;
   }
@@ -163,13 +166,19 @@
   a.btn:hover { background: var(--nowt-red); color: #fff; }
   /* The mark sits inside the button, right of the label. It stays brand red
      against the transparent button, then flips white on hover, when the
-     button fills with that same red and a red mark would disappear into it. */
+     button fills with that same red and a red mark would disappear into it.
+     shape-rendering is load-bearing, not a tweak: the gaps between squares
+     are 142.5 of 2000 units, so at this size they are barely one device pixel
+     wide. Anti-aliased white edges then bleed across the whole gap and the
+     white-on-red blend reads as orange lines through the mark. crispEdges
+     turns anti-aliasing off for this one SVG and the gaps stay clean. */
   .btn-mark {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     flex: 0 0 auto;
     display: block;
     fill: var(--nowt-red);
+    shape-rendering: crispEdges;
     transition: fill .15s;
   }
   a.btn:hover .btn-mark { fill: #fff; }
@@ -265,6 +274,9 @@
     </a>
     <div class="note">
       app.voynich.systems. Runs in any modern browser, nothing to install.
+      Pairing a browser needs the Nowt mobile app and a Pro subscription:
+      the browser shows a code and the phone scans it, because only the
+      phone has a camera.
     </div>
   </div>
 
@@ -347,7 +359,7 @@
   <div class="rows">
     <div class="row">
       <div class="k">Web</div>
-      <div class="v"><a href="https://app.voynich.systems">app.voynich.systems</a>, available now.</div>
+      <div class="v"><a href="https://app.voynich.systems">app.voynich.systems</a>, available now, paired from the mobile app with Pro.</div>
     </div>
     <div class="row">
       <div class="k">Android</div>
