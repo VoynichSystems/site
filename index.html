@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Voynich Systems</title>
-<meta name="description" content="Voynich Systems — independent software studio in Sheffield, UK. Makers of Nowt, encrypted notes & tasks for Android.">
+<meta name="description" content="Voynich Systems, independent software studio. Makers of Nowt, encrypted notes and tasks for Android and the web.">
+<!-- The Nowt mark doubles as the studio favicon. ?v= is a cache-buster: browsers
+     hold favicons for a long time and per page URL, so bump it on any icon change. -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=1">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <style>
   :root {
     --bg: #0a0a0a;
@@ -89,6 +94,21 @@
   .project h2 { font-size: 15px; font-weight: 600; margin-top: 14px; }
   .project p { margin-top: 8px; color: var(--dim); }
 
+  /* Route to the Nowt page. Without this the product has no entry point from
+     the studio site, and /nowt is only reachable by typing it. */
+  .project .go {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 11px 20px;
+    border: 1px solid var(--red);
+    color: var(--ink);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .project .go:hover { background: var(--red); color: #fff; }
+
   .contact { margin-top: 56px; }
 
   footer { border-top: 1px solid var(--line); }
@@ -102,7 +122,6 @@
 
 <header>
   <span>Voynich Systems</span>
-  <span>Sheffield, UK</span>
 </header>
 
 <main>
@@ -117,9 +136,11 @@
   <section class="project">
     <div class="eyebrow">Now building</div>
     <h2>Nowt — Encrypted Notes &amp; Tasks</h2>
-    <p>End-to-end encrypted notes and tasks for Android.
-    Your words stay yours. We see nothing.
+    <p>Block-based notes and tasks for Android and the web, with optional
+    end-to-end encryption. Switch it on and your notes are encrypted on your
+    device before they sync, and we cannot decrypt them with the keys we hold.
     Coming soon to Google Play.</p>
+    <a class="go" href="/nowt/">About Nowt</a>
   </section>
 
   <p class="contact"><a href="mailto:hello@voynich.systems">hello@voynich.systems</a></p>
