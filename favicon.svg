@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" width="2000" height="2000" role="img" aria-label="Nowt">
+  <title>Nowt</title>
+  <!--
+    Exact vector replica of branding/icon.png: a 3x3 grid of squares.
+    Geometry measured from the 2000x2000 source (square 533, gap 142.5,
+    margin 58 -> equal 58px margins on all sides).
+    Fill is the Nowt brand red #D71921 (app_theme.dart quickNoteStatusDot).
+    NOTE: the raster icon.png ships #B8141B; this SVG uses the brand red the
+    owner specified. Each square carries an id (rXcY) for future animation.
+    Change the whole mark's colour by editing --brand.
+  -->
+  <g fill="var(--brand, #D71921)">
+    <rect id="r1c1" x="58"   y="58"   width="533" height="533"/>
+    <rect id="r1c2" x="733.5" y="58"   width="533" height="533"/>
+    <rect id="r1c3" x="1409" y="58"   width="533" height="533"/>
+    <rect id="r2c1" x="58"   y="733.5" width="533" height="533"/>
+    <rect id="r2c2" x="733.5" y="733.5" width="533" height="533"/>
+    <rect id="r2c3" x="1409" y="733.5" width="533" height="533"/>
+    <rect id="r3c1" x="58"   y="1409" width="533" height="533"/>
+    <rect id="r3c2" x="733.5" y="1409" width="533" height="533"/>
+    <rect id="r3c3" x="1409" y="1409" width="533" height="533"/>
+  </g>
+</svg>
